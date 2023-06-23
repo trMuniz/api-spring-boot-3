@@ -10,6 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -27,6 +31,12 @@ public class ProductController {
 
     @GetMapping("/products")
     public ResponseEntity<?> listAllProducts() {
+        List<ProductModel> productModelList = productRepository.findAll();
+        if (!productModelList.isEmpty()) {
+            for (ProductModel productModel : productModelList) {
+                productModel.add(linkTo(methodOn(ProductController.class).listProductById(productModel.getId())).withSelfRel());
+            }
+        }
         return ResponseEntity.status(HttpStatus.OK).body(productRepository.findAll());
     }
 
